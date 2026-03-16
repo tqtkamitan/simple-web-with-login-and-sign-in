@@ -2,6 +2,7 @@
 using Application.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyWebApplication.Models;
@@ -94,6 +95,40 @@ namespace MyWebApplication.Controllers
         {
             var users = await _userService.GetAllAsync();
             return Ok(users);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("login-google")]
+        public IActionResult LoginGoogle()
+        {
+            var redirectUrl = Url.Action("GoogleResponse", "Auth");
+
+            var properties = new AuthenticationProperties
+            {
+                RedirectUri = redirectUrl
+            };
+
+            return Challenge(properties, "Google");
+        }
+
+        [HttpGet("google-response")]
+        public async Task<IActionResult> GoogleResponse()
+        {
+            var result = await HttpContext.AuthenticateAsync("Cookies");
+
+            if (!result.Succeeded)
+                return RedirectToAction("Login");
+
+            var claims = result.Principal.Claims;
+
+            var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+
+            // TODO:
+            // check if user exists in your DB
+            // create user if not exist
+
+            return RedirectToAction("Index", "Home");
         }
     }
 }

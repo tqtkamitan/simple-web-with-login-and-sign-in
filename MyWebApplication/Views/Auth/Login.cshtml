@@ -33,6 +33,17 @@
                         Submit
                     </button>
                     <p class="login-form-tip">Dont't have account? <a asp-area="" asp-controller="Auth" asp-action="Register">Sign up</a></p>
+
+                    <p class="login-form-tip">
+                        Or
+                        <a asp-controller="Auth"
+                                                asp-action="LoginGoogle"
+                                                class="btn btn-danger">
+                            Login with Google
+                        </a>
+                    </p>
+
+                    
                 </div>
             </div>
         </form>
