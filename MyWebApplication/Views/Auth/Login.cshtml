@@ -1,0 +1,40 @@
+﻿@model MyWebApplication.Models.UserViewModel
+
+@{
+    ViewBag.Title = "Login";
+}
+
+<div class="row">
+    <div class="col-md-6">
+    </div>
+    <div class="col-md-6">
+        <form asp-action="login" method="post">
+            <div class="row">
+                <div class="offset-md-3 col-md-6">
+
+                    <h4>Login</h4>
+                    <hr />
+
+                    <div asp-validation-summary="All" class="text-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="UserName" class="form-label"></label>
+                        <input asp-for="UserName" class="form-control" />
+                        <span asp-validation-for="UserName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label"></label>
+                        <input asp-for="Password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        Submit
+                    </button>
+                    <p class="login-form-tip">Dont't have account? <a asp-area="" asp-controller="Auth" asp-action="Register">Sign up</a></p>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
