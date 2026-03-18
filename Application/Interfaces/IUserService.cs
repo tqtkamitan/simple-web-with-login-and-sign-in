@@ -8,5 +8,6 @@ namespace Application.Interfaces
         Task<UserDto> RegisterAsync(RegisterDto registerDto);
         Task<UserDto> LoginAsync(LoginDto loginDto);
         Task<List<UserDto>> GetAllAsync();
+        Task<UserDto> GoogleLoginAsync(RegisterDto loginDto);
     }
 }

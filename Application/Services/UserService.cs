@@ -19,18 +19,19 @@ namespace Application.Services
     public class UserService : IUserService
     {
         private readonly ApplicationDbContext _context;
-        private readonly IConfiguration _config;
         private readonly PasswordHasher<User> _hasher;
 
-        public UserService(ApplicationDbContext context, IConfiguration config)
+        public UserService(ApplicationDbContext context)
         {
             _context = context;
-            _config = config;
             _hasher = new PasswordHasher<User>();
         }
 
         public async Task<UserDto> RegisterAsync(RegisterDto registerDto)
         {
+            if (string.IsNullOrEmpty(registerDto.Password))
+                throw new Exception("Password is required");
+
             if (await _context.Users.AnyAsync(u => u.Username == registerDto.Username))
                 throw new Exception("Username already exists.");
 
@@ -49,6 +50,9 @@ namespace Application.Services
 
         public async Task<UserDto> LoginAsync(LoginDto dto)
         {
+            if (string.IsNullOrEmpty(dto.Password))
+                throw new Exception("Password is required");
+
             var user = await _context.Users.SingleOrDefaultAsync(u => u.Username == dto.Username);
             if (user == null)
                 throw new Exception("Invalid credentials.");
@@ -92,5 +96,59 @@ namespace Application.Services
             return users;
         }
 
+        public async Task<UserDto> GoogleLoginAsync(RegisterDto dto)
+        {
+            if (string.IsNullOrEmpty(dto.ProviderId))
+                throw new Exception("Missing Google sub (ProviderId)");
+
+            var login = await _context.ExternalLogins
+                .Include(x => x.User)
+                .SingleOrDefaultAsync(x =>
+                    x.Provider == "Google" &&
+                    x.ProviderId == dto.ProviderId);
+
+            if (login != null)
+            {
+                return new UserDto
+                {
+                    Id = login.User.Id,
+                    Username = login.User.Username,
+                    Role = login.User.Role
+                };
+            }
+
+            var user = new User
+            {
+                Username = dto.Email ?? $"google_{dto.ProviderId}",
+                Role = dto.Role
+            };
+
+            var externalLogin = new ExternalLogins
+            {
+                Provider = "Google",
+                ProviderId = dto.ProviderId,
+                User = user
+            };
+
+            _context.ExternalLogins.Add(externalLogin);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // log full error
+                Console.WriteLine(ex.InnerException?.Message ?? ex.Message);
+                throw;
+            }
+
+            return new UserDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Role = user.Role
+            };
+        }
     }
 }

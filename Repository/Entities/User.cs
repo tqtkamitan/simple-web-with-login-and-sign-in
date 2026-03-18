@@ -13,5 +13,7 @@ namespace Repository.Entities
         public string Username { get; set; }
         public string PasswordHash { get; set; }
         public UserRole Role { get; set; }
+
+        public ICollection<ExternalLogins> ExternalLogins { get; set; }
     }
 }

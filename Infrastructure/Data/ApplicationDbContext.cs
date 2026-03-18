@@ -16,6 +16,7 @@ namespace Infrastructure.Data
 
         // DbSet properties for your entities
         public DbSet<User> Users { get; set; }
+        public DbSet<ExternalLogins> ExternalLogins { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

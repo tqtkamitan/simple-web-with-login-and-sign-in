@@ -124,9 +124,16 @@ namespace MyWebApplication.Controllers
             var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
             var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
 
-            // TODO:
-            // check if user exists in your DB
-            // create user if not exist
+            var dto = new RegisterDto
+            {
+                Email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value,
+                Username = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value,
+                ProviderId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value
+            };
+
+            var user = await _userService.GoogleLoginAsync(dto);
+
+            await _authService.SignInAsync(user);
 
             return RedirectToAction("Index", "Home");
         }
